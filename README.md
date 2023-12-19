@@ -29,109 +29,110 @@
 1.  Transfromer 모델은 Base 모델(LSTM)보다 BLEU Score가 10% 이상 높을 것이다.
 2. Subword Tokenizer를 사용한 모델 성능이 그렇지 않은 모델보다 BLEU Score가 10% 이상 높을 것이다. 
 
-### Data Preprocessing
+### LSTM(Long Short-Term Memory)
 
-1. Feature 제거
-- 침수전손, 침수전손, 도난의 경우 대부분의 value가 0 : Feature 삭제
-2. 이상치 제거
-
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/4c887399-6d01-4d6d-a0de-be736d691ddd" alt="text" width="number" />
-  <br> 이상치 제거 전 Boxplot
-</p>
-
-- 선형회귀분석에서 가격, 연식, 주행거리 변수의 이상치가 MAE를 높이는 것으로 확인함: 위의 세 변수에 대한 이상치를 IQR(Inter Quantile Range)방식으로 제거 
-
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/89d2ec08-778e-48db-b840-33f5859a315b" alt="text" width="number" />
-  <br> 이상치 제거 후 세 변수에 대한 Boxplot
-</p>
-
-
-### EDA
-
-1. 가격에 대한 Distplot
+1. 바닐라 RNN의 장기 의존성 문제(the problem of Long-Term Dependencies)를 해결하기 위한 모델
+2. 은닉층 메모리셀에 3개의 GATE 추가
+   - forget gate : 과거 정보의 유지를 담당
+   - input gate :  입력된 정보의 활용을 담당
+   - output gate : 두 정보를 계산하여 나온 출력 정보를 담당
+3. Cell-state 추가
+   - 활성화 함수를 거치지 않기에 정보손실이 없음
+   - 최근(short) 이벤트에 비중을 결정할 수 있으면서 동시에 오래된(long) 정보를 완전히 잃지 않을 수 있음
+4. 교사강요(Teacher forcing) 적용
+   - 모든 시점에 대해서 이전 시점의 예측값 대신 실제값을 입력으로 주는 방법
 
 <p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/c4c5dc5c-ad90-41eb-92b7-c2e4857f649b" alt="text" width="number" />
-  <br> 우측으로 긴 꼬리를 가진 가격 분포
+  <img src="https://github.com/mugan1/comic_translation/assets/71809159/c41f3790-9f78-4d8d-9251-b96059a9d14b" alt="text" width="number" />
 </p>
 
-2. 연속형 변수 간 상관관계 
+### Transformer
+
+1. RNN 모델은 단어가 순서대로 들어오기 때문에 입력 시퀀스의 정보가 소실되는 구조적 한계점이 있음
+2. 모든 토큰을 동시에 입력받아 병렬 연산하는 방식
+3. N개의 인코더와 디코더로 구성
+4. 디코더에서 출력 단어를 예측하는 매 시점마다, 인코더에서의 전체 입력 문장을 다시 한 번 참고
+5. 해당 시점에서 예측해야 할 단어와 연관이 있는 입력 단어 부분을 좀 더 집중(attention)함
+6. Attention 연산 과정
+   - Query에 대해 Key와의 유사도를 가중치로 하여 Key와 mapping된 Value에 반영함. 이후 이들의 가중합을 리턴
+   - Self-Attention은 입력 문장의 모든 단어 벡터들끼리 Attention을 적용(인코더)
+   - Masked Decoder Attention은 디코더가 출력을 할 때 다음 정보를 미리 얻지 못하게 하기 위해 Masking을 함(디코더)
+   - Encoder-Decoder Attention은 Query는 디코더에, Key와 Value는 인코더가 출처로서 이들의 가중합을 구함(디코더)
+     
 <p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/2f2665b2-0e28-4604-985e-11013b9723ed" alt="text" width="number" />
-</p>
+   <img src="https://github.com/mugan1/comic_translation/assets/71809159/b2eb7f16-6bcc-4035-b2a5-39212f8672d0" alt="text" width="number" />
+</p> 
 
-  - 가격과 상관관계가 높은 변수는 연식, 주행거리가 음의 상관관계, 중량과 마력이 양의 상관관계를 가지고 있음 
-  - 연식과 주행거리, 배기량과 마력 등이 높은 상관성을 지니고 있음. 다중공선성 문제가 발생할 수 있지만, 특성상호작용 문제를 잘 해결할 수 있는 트리 모델을 사용할 것이기 때문에 특성상호작용에 대해서는 고려하지 않기로 함
+### BLEU Score(Bilingual Evaluation Understudy Score)
 
-3. 범주형 변수 간 상관관계
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/67857d7c-7f1c-4bc5-b068-6d84d5747afc" alt="text" width="number" />
-</p>
+1. BLEU는 기계 번역 결과와 사람이 직접 번역한 결과가 얼마나 유사한지 비교하여 번역에 대한 성능을 측정하는 방법
+2. 1-gram부터 가중치를 균일하게 적용한 1-4-grams까지 BLEU Score 계산 후 비교
 
-  - 가격과 범주형 변수간의 관계에서는 하이브리드 연료, 전륜 구동방식, 제네시스 제조사, 보증 가능, 보험이력 등록이 높은 가격을 형성하는 데에 영향을 미치는 것으로 확인됨
-  - 중고차 이름, 엔진형식, 색상의 경우 높은 cardinality로 모델의 성능을 떨어뜨릴 것으로 판단하며, 웹 애플리케이션에서 입력받기도 힘든 변수이기 때문에 활용 변수에서 삭제하기로 함 
+### Tokenizer
 
-   
-### Modeling(1차)
-
-1차 모델 중 가장 좋은 성능을 보인 LightGBM을 최종 모델로 선택
-
-1. 기준모델(훈련 데이터 가격 평균) MAE : 8390594
-2. Linear Regression MAE : 3924783
-3. LightGBM Regressior MAE : 3102346
-
-### Feature Selection
-
-사용자 입력화면에서 받을 데이터 수를 줄여야할 필요성이 있으므로 sklearn의 Select K-Best을 사용하여 주요 변수를 11개만 추출
-- Select K-Best : Feature Selection의 일종으로 Target 변수와의 상관관계를 계산하여 가장 중요하다고 판단되는 변수를 K개 산출하는 방식
-- 선택된 최종 변수 : 연식, 주행거리, 연료, 배기량, 마력, 최대토크, 제조사, 보증여부, 보험이력등록, 구동방식, 연비
+1. 한국어 형태소 분석기인 Konlpy의 Komoran 및 Mecab 사용 후 성능 비교
+2. Mecab과 Subword Tokenizer인 Huggingface Tokenzier로 토큰화 한 후 성능 비교
+3. Subword Tokenizer 
+   - OOV(Out-Of-Vocabulary) 문제를 해결하기 위해 하나의 단어를 더 작은 단위의 의미있는 여러 서브워드로 분할하는 방식
+   - Ex) ['나', '는', '오늘', '아침밥', '을', '먹', '었', '다'] → ['나', '##는', '오늘', '아침', '##밥', '##을', '먹', '##었다', '.']
   
-### LightGBM Modeling
+### Translation 결과 및 분석  
 
-최종 모델인 LightGBM을 사용하여 최적화된 예측 결과를 찾아낼 예정
-- lightGBM : Gradient Boosting 모델 중 연산 속도가 빨라 웹 애플리케이션에 탑재하기 편리함
-- Gradient Boosting : 앙상블 알고리즘의 일종으로, Gradient(잔차)를 이용하여 이전 모형의 약점을 보완하는 새로운 모형을 순차적으로 적합한 뒤, 이들을 선형결합하여 얻어진 모형을 생성하는 지도학습 알고리즘 
-- RandomizedsearchCV : 최적화된 하이퍼파라미터를 찾는 메소드 
+1. Train Data
+
+   1)<br>
+      - 원문 :이렇게 건들건들 돌아다니지 말고 좀 얌전히 일을 좀 해라.
+      - 번역문 : oh stop all this gallivanting aboutand settle down to something!
+      - LSTM :newspaper problem i 'm afraid so long it 's not be so small
+      - Transformer(Mecab) : oh stop all this is !
+      - **Transformer(Subword) : oh stop all this gallivanting aboutand settle down to something!**
+   
+
+   2)<br>
+      - 원문 : 내가 인내하려는 것에 대하여 훈계하지 마라.
+      - 번역문 : don't preach me a lesson about patience
+      - LSTM :excuse for his friends
+      - Transformer(Mecab) : don't preach me a lesson about patience
+      - **Transformer(Subword) : don't preach me a lesson about patience**
+
+2. Test Data
+
+   - 원문 :그들은 사람들이 그들의 요구에 대하여 핑계대어 거절하고 회피하는 것을 허락치 않았다.
+   - 번역문 : they refused to have their demands put off.
+   - LSTM : they had to send their own some letters to the enemy 's own ow
+   - Transformer(Mecab) : they did not allow any excuse to permit them on their demands to further language.
+   - **Transformer(Subword) : they refused to excuse their demands for their demands**
+
+<p align="center">
+   <img src="https://github.com/mugan1/comic_translation/assets/71809159/d892af29-79c8-4c56-a371-617bce07e33d" alt="text" width="number" />
+</p> 
+
+<p align="center">
+   <img src="https://github.com/mugan1/comic_translation/assets/71809159/dcb1ca00-c772-4740-a627-eea14333ecc4" alt="text" width="number" />
+</p> 
+
+### Analysis
+
+1. Train Data에 한해서 Subword Tokenizer를 이용한 Transformer 모델이 성능이 가장 높았으며, 기준 모델인 LSTM보다 최소 4배 이상의 높은 BLEU Score를 달성
+2. Test Data에서는 과적합 현상을 보이며 모든 모델이 제대로 된 성능을 발휘하지 못했는데, 언어의 복잡성을 고려했을 때 데이터셋과 학습량이 절대적으로 부족했기 때문이라고 판단함
+
+### 만화 Text 감지 및 데이터 변환 프로세스
+
+<p align="center">
+   <img src="https://github.com/mugan1/comic_translation/assets/71809159/f9acee3b-3960-42a3-86b6-c45a0915321e" alt="text" width="number" />
+</p> 
+
+1. OpenCV를 이용한 Text Detection 수행 
+2. Google OCR을 활용하여 Text 이미지를 text 데이터로 변환
+3.  번역된 결과를 Image draw를 통해 텍스트 이미지 삽입
+
+<p align="center">
+   <img src="https://github.com/mugan1/comic_translation/assets/71809159/02dc9a2a-39e3-49ff-9f46-fcef1d2d911a" alt="text" width="number" />
+</p> 
 
 ### Result
 
-훈련데이터 MAE:  4902909 / R2 Score : 0.56
-검증데이터 MAE:  5567629 / R2 Score : 0.42
-테스트데이터 MAE:  4893349 / R2 Score : 0.64
-- 데이터량의 부족과 11개의 변수만을 사용했기 때문에 모델의 성능이 많이 떨어짐. 추후 데이터 추가 확보와 최적화 과정을 통해 모델의 성능을 올릴 예정
 
-### XAI
-
-1. 예측가격과 실제 가격의 차
-
-![가격대가 높을수록 오차가 크게 나타나는 것을 확인할 수 있음](https://github.com/mugan1/Used_Car_Prediction/assets/71809159/e4cc2822-e1e1-4136-a96d-77c34a029d2b)
-    
-2. Feature Importance : 각각 특성을 모든 트리에 대해 평균불순도감소를 계산하는 방식
-   
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/ffaecaa3-bd8b-4e85-9405-b83d93a2aed6" alt="text" width="number" />
-</p>
-
-3. Permutation Importance : 관심있는 특성에만 무작위로 노이즈를 주고 예측을 하였을 때 성능 평가지표가 얼마나 감소하는 지 측정하는 방식
-
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/38e14078-4f8b-425b-bbe3-a1ad345fa789" alt="text" width="number" /><br>
-</p>
-
-- 두 방식을 통해 연식, 주행거리, 마력, 배기량, 연비, 최대토크 정도가 모델 예측에 주요 변수로 작용하는 것을 확인
-- 데이터량의 부족과 11개의 변수만을 사용했기 때문에 모델의 성능이 많이 떨어짐. 추후 데이터 추가 확보와 최적화 과정을 통해 모델의 성능을 올릴 예정    
-
-4. SHAP
-   
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/b372c7a2-a773-4efb-9426-6e6a5ce795b3" alt="text" width="number" /><br>
-</p> 
-
-- 테스트 10번 인덱스 데이터의 경우 주행거리, 배기량, 보험이력등록여부가 가격을 높이는 요인이며, 연식, 최대토크, 마력, 연료가 가격 낮추는 요인으로 작용함을 알 수 있음
-
-### Web Application
 
 - Framework |  FLASK
 - DB |  SQLITE3, POSTGRE(Elephant SQL)
