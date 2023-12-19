@@ -132,31 +132,43 @@
 
 ### Result
 
+<p align="center" width="100%">
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/ad57132f-8ded-450f-a443-2f1fdaa5cc88" width="30%"></a>  
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/a0c25ae6-79cd-4fd4-9f26-30815e401b2e" width="30%"></a>  
+</p> 
 
+<p align="center" width="100%">
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/20ad2596-8d22-4847-94b5-4e4651ccdc01"></a>  
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/35ba6bf6-9bab-4381-86d3-5d4c94d540b6"></a>  
+</p> 
 
-- Framework |  FLASK
-- DB |  SQLITE3, POSTGRE(Elephant SQL)
-- Web Hosting | Koyeb
+<p align="center" width="100%">
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/69c913f5-2a6d-4522-ad18-a138957447dd"></a>  
+   <a href="link"><img src="https://github.com/mugan1/comic_translation/assets/71809159/5ad00476-f262-4310-9cd3-e8af669b6fa9"></a>  
+</p> 
 
-### Layout
-
-1. 사용자 입력화면 : 사용자 입력데이터와 모델 예측 결과는 Input Table DB에 저장됨
-   
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/17040b86-3608-411e-bf5c-b4cac2986ccb" alt="text" width="number" /><br>
-</p>   
-
-2. 대시보드 : 모델을 통해 예측한 가격과 관련 분석 정보를 확인할 수 있음
-
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/c9b24b46-8198-4e48-b6be-b80d67592608" alt="text" width="number" /><br>
-</p>  
-<p align="center">
-  <img src="https://github.com/mugan1/Used_Car_Prediction/assets/71809159/fb88abd7-82af-4759-8a45-a41158870b4f" alt="text" width="number" /><br>
-</p>   
 
 ### Conclusion
 
-- 직접 웹스크래핑으로 수집한 데이터를 분석하고 모델링하여 웹 애플리케이션으로 배포하는 프로젝트를 수행함으로써, ML 엔지니어링에 대한 이해를 한층 더 키울 수 있었음
-- 데이터량의 부족과 모델 하이퍼파라미터 최적화 문제, 변수 선택의 문제로 좋은 성능의 모델을 만들지 못했는데, 차후 수정을 통해 R2 Score 80% 이상의 모델을 구현하여 교체할 예정임
+1. 총평
+   
+   - 최종 모델인 Transformer(Subword)는 기준 모델 LSTM 모델보다 Train Data에 한해 최소 4배 이상의 높은 BLEU Score 기록
+   - Test Data에서는 10% 정도의 성능 향상을 보였으나 기계 번역 모델로 사용하기에는 무리가 있음
+   - 만화 번역을 위한 프로세스에서는 말풍선 밖으로 Text가 나오거나 Text가 아닌 이미지가 지워지는 등의 오류가 있으나 대체적인 Text 탐지 및 인식에는 좋은 성능을 보임
+   - 대시보드 : 모델을 통해 예측한 가격과 관련 분석 정보를 확인할 수 있음
+
+2. 소감 및 기대효과
+   
+   - 다량의 Data 확보 시에는 Test Data 검증에도 높은 성능을 보일 것으로 예상함
+   - 영어-스페인어, 한국어-일본어와 같이 비슷한 언어 간에는 높은 번역 성능을 보일 것으로 판단
+   - 난이도가 높은 번역을 제외, 언어추론/질의응답/감정분류 등에서는 Transformer의 실질적 활용도가 높을 것으로 예상
+   - 번역 모델과 만화 텍스트 탐지/인식 시스템을 발전시켜 웹툰, 해외 영상 자막 번역 등 다양한 콘텐츠 분야에서 응용될 것으로 예상
+
+### References
+
+   1. Transformer : [Link](https://github.com/dev-sngwn/transformer-keras-ko2en/blob/master/En2Ko.ipynb)
+   2. NLP 모델 구현 및 Tokenizing : [Link](https://wikidocs.net/book/2155)
+   3. 만화 번역 프로세스 : [Link](https://github.com/ttop32/JMTrans)
+   4. 식질머신 : [Link](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002594139)
+   5. BLEU Score : [Link](https://www.kaggle.com/databeru/machine-translation-fr-en-with-bleu-score)
 
