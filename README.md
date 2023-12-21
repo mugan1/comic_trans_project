@@ -1,6 +1,6 @@
 ### Project Title
 
-만화책 번역 프로젝트(NLP/Vision 결)  
+만화책 번역 프로젝트(NLP/Vision 결합)  
 
 ### Overview
 
